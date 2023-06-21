@@ -173,8 +173,7 @@
 
     let UPDATE_INTERVAL_MS = 30;
 
-    const KEYS_SW_ON   = "1234567890";
-    const KEYS_SW_OFF  = "qwertyuiop";
+    const KEYS_SW      = "qwertyuiop";
     const KEYS_BUTTONS = "vbnm";
 
     /////////////////////
@@ -227,14 +226,11 @@
             set_state(key_elem, false);
             last_inputs_state = null;
         });
-    }
-    document.addEventListener('mouseup', (event) => {
-        for(let i=0; i<4; i++){
-            const key_elem = ELEMS.KEY[i];
+        key_elem.addEventListener('mouseup', (event) => {
             set_state(key_elem, true);
-        }
-        last_inputs_state = null;
-    });
+            last_inputs_state = null;
+        });
+    }
     
     document.addEventListener('keypress', (event) => {
         const k = event.key;
@@ -244,15 +240,8 @@
             last_inputs_state = null;
             return;
         }
-        
-        if( (i = KEYS_SW_ON.indexOf(k)) != -1){
-            set_state(ELEMS.SW[9-i], true);
-            last_inputs_state = null;
-            return;
-        }
-        
-        if( (i = KEYS_SW_OFF.indexOf(k)) != -1){
-            set_state(ELEMS.SW[9-i], false);
+        if( (i = KEYS_SW.indexOf(k)) != -1){
+            swap_state(ELEMS.SW[9-i]);
             last_inputs_state = null;
             return;
         }
@@ -290,7 +279,7 @@
         if(from === 0){
             return this.slice(-to-1);
         }
-        return this.slice(-to-1, -from-1);
+        return this.slice(-to-1, -from);
     }
 
     let last_outputs_state = null;
@@ -310,13 +299,12 @@
             new_outputs_state.rslice(51,45)
         ];
 
-
         for(let i=0; i<ELEMS.LED.length; i++){
             set_state(ELEMS.LED[i], LED_states.rget(i) === '1');
         }
         for(let i=0; i<HEX_states.length; i++){
             for(let j=0; j<HEX_states.rget(i).length; j++){
-                set_state(ELEMS.SEG[i][j], HEX_states.rget(i).rget(j) === '1');
+                set_state(ELEMS.SEG[i][j], HEX_states[i].rget(j) === '1');
             }
         }
 

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emulator Interface</title>
+
+<style>
+
+    body *{
+        box-sizing: border-box;
+        margin: 0px;
+    }
+
+    .container{
+        display: flex;
+        flex-direction: row;
+    }
+
+    .LED{
+        width:  30px;
+        height: 30px;
+        border-radius: 100%;
+        border: 1px solid black;
+    }
+    .LED[state="0"]{
+        background-color: grey;
+    }
+    .LED[state="1"]{
+        background-color: red;
+    }
+    .SW{
+        width:  30px;
+        height: 60px;
+        border: 5px solid black;
+        display: flex;
+        flex-direction: column;
+    }
+    .SW *{
+        width:  100%;
+        height: 50%;
+        background-color: black;
+        cursor: pointer;
+    }
+    .SW[state="1"] *.up{
+        background-color: gray;
+    }
+    .SW[state="0"] *.down{
+        background-color: gray;
+    }
+
+
+    #HEX_container{
+        background-color: grey;
+        padding: 10px;
+        display: inline-flex;
+    }
+    .HEX{
+        width: 50px;
+        display: flex;
+        flex-direction: column;
+        margin: 5px;
+    }
+    .SEG.HOR{
+        width: 100%;
+        height: 10px;
+    }
+    .SEG.VER_SECTION{
+        width: 100%;
+        height: 50px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .SEG.VER{
+        width: 10px;
+        height: 100%;
+    }
+    .SEG[state="1"]{
+        background-color: black;
+    }
+    .SEG[state="0"]{
+        background-color: red;
+    }
+
+    .KEY{
+        width:  50px;
+        height: 50px;
+        border-radius: 100%;
+        margin: 3px;
+        border: 5px solid green;
+        cursor: pointer;
+    }
+    .KEY[state="1"]{
+        background-color: black;
+    }
+    .KEY[state="0"]{
+        background-color: red;
+    }
+
+</style>
+
+</head>
+<body>
+    
+
+    <div class="container" id="HEX_container">
+        <script>
+        const template = /*html*/`
+            <div class="HEX">
+                <div class="SEG HOR"         id="SEG_?_0" state="0"></div>
+                <div class="SEG VER_SECTION">
+                    <div class="SEG VER"     id="SEG_?_5" state="1"></div>
+                    <div class="SEG VER"     id="SEG_?_1" state="1"></div>
+                </div>
+                <div class="SEG HOR"         id="SEG_?_6" state="0"></div>
+                <div class="SEG VER_SECTION">
+                    <div class="SEG VER"     id="SEG_?_4" state="1"></div>
+                    <div class="SEG VER"     id="SEG_?_2" state="0"></div>
+                </div>
+                <div class="SEG HOR"         id="SEG_?_3" state="0"></div>
+            </div>`
+
+        for(let i=5; i>=0; i--){
+            document.write(template.replace(/\?/g, i));
+        }
+        </script>
+    </div>
+
+    <div class="container" id="LED_container">
+        <div class="LED" id="LED_9" state="0"></div>
+        <div class="LED" id="LED_8" state="0"></div>
+        <div class="LED" id="LED_7" state="0"></div>
+        <div class="LED" id="LED_6" state="0"></div>
+        <div class="LED" id="LED_5" state="0"></div>
+        <div class="LED" id="LED_4" state="0"></div>
+        <div class="LED" id="LED_3" state="0"></div>
+        <div class="LED" id="LED_2" state="0"></div>
+        <div class="LED" id="LED_1" state="0"></div>
+        <div class="LED" id="LED_0" state="0"></div>
+    </div>
+
+    <div class="container">
+
+        <div class="container" id="SW_container">
+            <div class="SW" id="SW_9" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_8" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_7" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_6" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_5" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_4" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_3" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_2" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_1" state="0"><div class="up"></div><div class="down"></div></div>
+            <div class="SW" id="SW_0" state="0"><div class="up"></div><div class="down"></div></div>
+        </div>
+        
+        <div class="container" id="KEY_container">
+            <div class="KEY" id="KEY_3" state="1"></div>
+            <div class="KEY" id="KEY_2" state="1"></div>
+            <div class="KEY" id="KEY_1" state="1"></div>
+            <div class="KEY" id="KEY_0" state="1"></div>
+        </div>
+    </div>
+    
+    
+    
+
+
+<script>
+
+    /// CONFIG //////////
+
+    let UPDATE_INTERVAL_MS = 30;
+
+    const KEYS_SW_ON   = "1234567890";
+    const KEYS_SW_OFF  = "qwertyuiop";
+    const KEYS_BUTTONS = "vbnm";
+
+    /////////////////////
+
+    function set_state(elem, state){
+        elem.setAttribute('state', state ? "1" : "0");
+    }
+    function get_state(elem){
+        return elem.getAttribute('state') === "1";
+    }
+    function swap_state(elem){
+        elem.setAttribute('state', get_state(elem) ? "0" : "1");
+    }
+
+    const ELEMS = {
+        SW: [],
+        KEY: [],
+        LED: [],
+        SEG: [],
+    };
+
+
+    
+    for(let i=0; i<10; i++){
+        ELEMS.SW[i]  = document.querySelector(`#SW_${i}` );
+        ELEMS.LED[i] = document.querySelector(`#LED_${i}`);
+    }
+    for(let i=0; i<4; i++){
+        ELEMS.KEY[i] = document.querySelector(`#KEY_${i}` );
+    }
+    for(let i=0; i<6; i++){
+        ELEMS.SEG[i] = [];
+        for(let j=0; j<7; j++){
+            ELEMS.SEG[i][j] = document.querySelector(`#SEG_${i}_${j}`)
+        }
+    }
+
+    
+
+    for(let i=0; i<10; i++){
+        const sw_elem = ELEMS.SW[i];
+        sw_elem.addEventListener('click', (event) => {
+            swap_state(sw_elem);
+            last_inputs_state = null;
+        });
+    }
+    for(let i=0; i<4; i++){
+        const key_elem = ELEMS.KEY[i];
+        key_elem.addEventListener('mousedown', (event) => {
+            set_state(key_elem, false);
+            last_inputs_state = null;
+        });
+    }
+    document.addEventListener('mouseup', (event) => {
+        for(let i=0; i<4; i++){
+            const key_elem = ELEMS.KEY[i];
+            set_state(key_elem, true);
+        }
+        last_inputs_state = null;
+    });
+    
+    document.addEventListener('keypress', (event) => {
+        const k = event.key;
+        let i;
+        if( (i = KEYS_BUTTONS.indexOf(k)) != -1){
+            set_state(ELEMS.KEY[3-i], false);
+            last_inputs_state = null;
+            return;
+        }
+        
+        if( (i = KEYS_SW_ON.indexOf(k)) != -1){
+            set_state(ELEMS.SW[9-i], true);
+            last_inputs_state = null;
+            return;
+        }
+        
+        if( (i = KEYS_SW_OFF.indexOf(k)) != -1){
+            set_state(ELEMS.SW[9-i], false);
+            last_inputs_state = null;
+            return;
+        }
+    });
+    document.addEventListener('keyup', (event) => {
+        const k = event.key;
+        let i;
+        if( (i = KEYS_BUTTONS.indexOf(k)) != -1){
+            set_state(ELEMS.KEY[3-i], true);
+            last_inputs_state = null;
+        }
+    });
+
+    let last_inputs_state = null;
+    function get_inputs_state(){
+        if(last_inputs_state === null){
+            const SW_states  = ELEMS.SW .map( x => get_state(x) ? "1" : "0" ).reverse().join('');
+            const KEY_states = ELEMS.KEY.map( x => get_state(x) ? "1" : "0" ).reverse().join('');
+            // const LED_states = ELEMS.LED.map( x => get_state(x) ? "1" : "0" ).reverse().join('');
+
+
+            last_inputs_state = KEY_states + SW_states;
+            // console.log("NEW INPUTS STATE:  ", last_inputs_state);
+        }
+        return last_inputs_state;
+    }
+
+    String.prototype.rget = function (i) {
+        return this[this.length - 1 - i];
+    }
+    Array.prototype.rget = function (i) {
+        return this[this.length - 1 - i];
+    }
+    String.prototype.rslice = function (to, from) {
+        if(from === 0){
+            return this.slice(-to-1);
+        }
+        return this.slice(-to-1, -from-1);
+    }
+
+    let last_outputs_state = null;
+    function set_outputs_state(new_outputs_state){
+        if(last_outputs_state === new_outputs_state){
+            return;
+        }
+        last_outputs_state = new_outputs_state;
+
+        const LED_states = new_outputs_state.rslice(9,0);
+        const HEX_states = [
+            new_outputs_state.rslice(16,10),
+            new_outputs_state.rslice(23,17),
+            new_outputs_state.rslice(30,24),
+            new_outputs_state.rslice(37,31),
+            new_outputs_state.rslice(44,38),
+            new_outputs_state.rslice(51,45)
+        ];
+
+
+        for(let i=0; i<ELEMS.LED.length; i++){
+            set_state(ELEMS.LED[i], LED_states.rget(i) === '1');
+        }
+        for(let i=0; i<HEX_states.length; i++){
+            for(let j=0; j<HEX_states.rget(i).length; j++){
+                set_state(ELEMS.SEG[i][j], HEX_states.rget(i).rget(j) === '1');
+            }
+        }
+
+        // console.log("NEW OUTPUTS STATE: ", last_outputs_state);
+    }
+
+
+    let last = Date.now();
+    function update_state_step(){
+        const inputs_state = get_inputs_state();
+        // console.log("OUT", (Date.now() - last) / 1000);
+        last = Date.now();
+        fetch(`/update/${inputs_state}`)
+        .then(data => data.text())
+        .then(text => {
+            // console.log("Received:", text);
+            set_outputs_state(text);
+            // console.log("IN")
+            setTimeout(update_state_step, UPDATE_INTERVAL_MS);
+        })
+        .catch(err => {
+            console.error("Error during fetch: ", err);
+        })
+    }
+
+    update_state_step();
+
+</script>
+
+</body>
+</html>

@@ -12,7 +12,7 @@ wire [6:0] HEX3;
 wire [6:0] HEX4;
 wire [6:0] HEX5;
 
-///////// Tu wstaw testowany moduł ////////////
+///////// TU WSTAW TESTOWANY MODUŁ ////////////
 
 always #15 CLK = !CLK; // Genrator Zegara
 

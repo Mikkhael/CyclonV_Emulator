@@ -17,7 +17,7 @@ chan configure stdin -blocking 0
 
 while {$stdin_len == -1} {
 
-    run $RUN_FOR
+    run $RUN_FOR ns
     set new_output [call EMULATOR.update_state $new_input]
 
     puts $interface_socket $new_output

@@ -102,7 +102,7 @@ Jeśli projekt jest bardziej zaawansowany, np. z plikami ".bdf", trzeba zawalczy
 
 3.  W folderze projektu Quartusa, idziemy do "simulation/modelsim" i otwieramy w notatniku plik kończacy się na "...gate_verilog.do"
     Podmieniamy w nim linijkę "run -all" na "do ../../emulator.do"
-    Ten krok trzeba wykonać za każdym razem, jak klikniemy Gate Level Simulation w kroku 5
+    Ten krok trzeba wykonać za każdym razem, jak klikniemy Gate Level Simulation w kroku 2
 
 4.  URUCHAMIAMY SYMULACJĘ: w folderze z plikiem "...gate_verilog.do" otwieramy cmd i wpisujemy:
     "vsim -c -do <nazwa pliku *.do>" (np. "vsim -c -do lab2_run_msim_gate_verilog.do")
@@ -114,10 +114,10 @@ Podsumowując:
     Jeśli dodaliśmy pliki do projektu, wykonujemy kroki 1,2,3,4
 
 ==============================
-    Zamukanie Emulacji
+    Zamykanie Emulacji
 ==============================
 
-Aby zatrzymać emulację, należy naciśnąć na oknie konsoli emulacji kliknac Enter. (Jak się coś zawiesi, to jeszcze trzeba wpisać "quit" albo "exit)
+Aby zatrzymać emulację, należy naciśnąć na oknie konsoli emulacji kliknac Enter. (Jak się coś zawiesi, to jeszcze trzeba wpisać "quit" albo "exit")
 Aby zamknąć serwer "emulator.js", należy naciśnąć na oknie konsoli Ctrl+C
 
 

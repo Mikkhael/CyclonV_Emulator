@@ -1,14 +1,15 @@
 # == CONFIG =======================
 
-set IO_INTERVAL 100
+set IO_INTERVAL 10
 
 # =================================
 
 
+
 set gui [open "| tclsh test_tk_2.do 2>@stdout" "r+"]
 
-chan configure stdin -blocking 0
-chan configure $gui  -blocking 0
+chan configure stdin     -blocking 0
+chan configure $gui      -blocking 0
 
 while {1} {
     set len [gets stdin cmd]
@@ -28,6 +29,9 @@ while {1} {
     set gui_len [gets $gui gui_cmd]
     if {$gui_len > 0} {
         puts stdout "RECEIVED($gui_len): $gui_cmd"
+        if {$gui_cmd == "q"} {
+            break
+        }
     }
 
     after $IO_INTERVAL

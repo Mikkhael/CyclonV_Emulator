@@ -31,8 +31,8 @@ EXAMPLE_DUT dut(
     .HEX5(HEX5)
 );
 
-always @(LED) begin
-    $display("LED: %b", LED);
+always @(*) begin
+    $display("LED: %b | KEY: %b", LED, KEY);
 end
 
 /////////////////////////////////////////////

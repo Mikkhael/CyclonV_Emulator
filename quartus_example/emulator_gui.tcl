@@ -71,7 +71,7 @@ proc get_sw_handler {name id} {
 
 proc set_led {id state} {
     global COLOR_LED_OFF COLOR_LED_ON
-    if {$state == 1} {
+    if {$state} {
         .frame_led.led$id configure -bg $COLOR_LED_ON
     } else {
         .frame_led.led$id configure -bg $COLOR_LED_OFF
@@ -80,7 +80,7 @@ proc set_led {id state} {
 
 proc set_hex_seg {id sub_id state} {
     global COLOR_LED_OFF COLOR_LED_ON
-    if {$state == 1} {
+    if {$state} {
         .frame_hex.hex$id itemconfigure $sub_id -fill $COLOR_LED_ON
     } else {
         .frame_hex.hex$id itemconfigure $sub_id -fill $COLOR_LED_OFF
@@ -217,7 +217,6 @@ proc stdin_handler {} {
 }
 
 chan event stdin readable {
-    # TODO debug
     set err_code [catch stdin_handler err_msg]
     if {$err_code} {
         putf stderr $err_msg

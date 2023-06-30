@@ -3,3 +3,8 @@ old/
 work/
 transcript
 *.zip
+db/
+simulation/
+output_files/
+incremental_db/
+*.bak

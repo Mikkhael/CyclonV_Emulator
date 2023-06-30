@@ -1,14 +1,9 @@
 
 ####### CONFIG ############
 
-if {![info exists 1]} {
-    set 1 "."
-}
-
+set RUN          1
 set RUN_FOR      30
 set IO_INTERVAL  10
-
-set RUN          1
 
 ###########################
 
@@ -19,7 +14,9 @@ set t1 0
 set td 0
 
 
-
+if {![info exists 1]} {
+    set 1 "emulator"
+}
 
 set gui [open "| tclsh $1/emulator_gui.tcl 2>@stdout" "r+"]
 chan configure stdin -blocking 0

@@ -4,7 +4,7 @@ module EXAMPLE_DUT(
 
     input  wire [3:0] KEY,
     output wire [9:0] LED,
-    output reg  [6:0] HEX0 = 7'd1,
+    output reg  [6:0] HEX0 = 7'b1111110,
     output wire [6:0] HEX1,
     output wire [6:0] HEX2,
     output wire [6:0] HEX3,

@@ -16,15 +16,19 @@ wire [6:0] HEX5;
 
 ///////// TU WSTAW TESTOWANY MODUŁ ////////////
 
+always #15 CLK = !CLK; // Genrator Zegara
 
-mammamia dut (
-    .KEY(KEY[0]),
-    .SW9(SW[9]),
-    .SW2(SW[2]),
-    .SW1(SW[1]),
-    .SW0(SW[0]),
-    .LED(LED[5:0]),
-    .HEX(HEX0)
+EXAMPLE_DUT dut(
+    .CLK(CLK),
+    .SW(SW),
+    .KEY(KEY),
+    .LED(LED),
+    .HEX0(HEX0),
+    .HEX1(HEX1),
+    .HEX2(HEX2),
+    .HEX3(HEX3),
+    .HEX4(HEX4),
+    .HEX5(HEX5)
 );
 
 always @(*) begin

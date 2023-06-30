@@ -80,7 +80,7 @@ proc set_led {id state} {
 
 proc set_hex_seg {id sub_id state} {
     global COLOR_LED_OFF COLOR_LED_ON
-    if {$state == 1} {
+    if {$state == 0} {
         .frame_hex.hex$id itemconfigure $sub_id -fill $COLOR_LED_ON
     } else {
         .frame_hex.hex$id itemconfigure $sub_id -fill $COLOR_LED_OFF

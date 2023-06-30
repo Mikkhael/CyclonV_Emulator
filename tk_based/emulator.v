@@ -32,7 +32,7 @@ EXAMPLE_DUT dut(
 );
 
 always @(*) begin
-    $display("LED: %b | KEY: %b", LED, KEY);
+    $display("LED: %b | KEY: %b | SW: %b", LED, KEY, SW);
 end
 
 /////////////////////////////////////////////

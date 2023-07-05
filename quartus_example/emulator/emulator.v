@@ -18,17 +18,14 @@ wire [6:0] HEX5;
 
 always #15 CLK = !CLK; // Genrator Zegara
 
-EXAMPLE_DUT dut(
-    .CLK(CLK),
-    .SW(SW),
-    .KEY(KEY),
-    .LED(LED),
-    .HEX0(HEX0),
-    .HEX1(HEX1),
-    .HEX2(HEX2),
-    .HEX3(HEX3),
-    .HEX4(HEX4),
-    .HEX5(HEX5)
+mammamia dut(
+	.HEX(HEX0),
+	.KEY(KEY),
+	.SW9(SW[9]),
+	.SW2(SW[2]),
+	.SW1(SW[1]),
+	.SW0(SW[0]),
+	.LED(LED)
 );
 
 always @(*) begin

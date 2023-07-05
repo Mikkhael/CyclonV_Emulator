@@ -4,6 +4,7 @@ set DO_SIMPLEF  [expr [lsearch -glob $argv "-S*"] != -1]
 set DO_QUARTUS  [expr [lsearch -glob $argv "-q*"] != -1]
 set FORCE_REP   [expr [lsearch -glob $argv "-a*"] != -1]
 set NOFORCE_REP [expr [lsearch -glob $argv "-na*"] != -1]
+set NO_QSF      [expr [lsearch -glob $argv "-ns*"] != -1]
 
 proc puts2 {data} {
     puts "\[EMU\] $data"
@@ -61,7 +62,7 @@ proc prepare_dut_instance {force_override} {
             puts2 "######################################################"
             puts2 "Unexpected format of ([pwd]/emulator/emulator.v)"
             puts2 "Not found any module instance named \"dut\"!"
-            puts2 "Insert any instance named \"dut\" (e.g. \"DUT dut();\") inside EMULATOR module in emulator/emulator.v"
+            puts2 "Insert any instance named \"dut\" (e.g. \"DUT dut();\") inside EMULATOR module in [pwd]/emulator/emulator.v"
             puts2 "######################################################"
             puts2 "Press enter to retry..."
             gets stdin
@@ -72,12 +73,11 @@ proc prepare_dut_instance {force_override} {
 
     if {$ev_dut_name!=$vo_module_name && !$force_override} {
         puts2 "######################################################"
+        puts2 "In file: [pwd]/emulator/emulator.v:"
         puts2 "Found instance of type \"$ev_dut_name\", but top-level is \"$vo_module_name\""
-        puts2 "Replace in manually or type \"a\" to do it automatically: "
+        puts2 "Press enter to do it automatically or close the script and edit the file [pwd]/emulator/emulator.v manually... "
         gets stdin char
-        if { $char == "a" || $char == "A" } {
-            set force_override 1
-        }
+        set force_override 1
     }
 
     if {$force_override} {
@@ -99,7 +99,9 @@ proc prepare_dut_instance {force_override} {
         puts2 "######################################################"
         puts2 "Overwriting [pwd]/emulator/emulator.v completed:"
         puts2 $new_module_inst
+        puts2 "######################################################"
         puts2 "Check if all ports are connected correctly (my program has to guess it based on ports' names)"
+        puts2 "Make any corrections in file: [pwd]/emulator/emulator.v"
         puts2 "######################################################"
         puts2 "Press enter to continue..."
         gets stdin
@@ -137,6 +139,100 @@ proc get_port_line_from_name {port_name} {
     return "\t.$port_name\([guess_wire_from_port_name $port_name]\)"
 }
 
+### QSF ###
+
+proc find_in_qsf_and_replace {qsf name value} {
+    set found_ops [regexp -lineanchor -indices -linestop "^set_global_assignment\\s+-name\\s+$name.*?$" $qsf ops]
+    set replacement "set_global_assignment -name $name $value"
+    if {$found_ops} {
+        set res [string replace $qsf [lindex $ops 0] [lindex $ops 1] "$replacement"]
+    } else {
+        set res [string cat $qsf "\n$replacement"]
+    }
+    return $res
+}
+proc find_in_qsf_or_add {qsf value} {
+    set replacement "set_global_assignment -name $value"
+    set value [string map {" " "\\s+"} $value]
+    set found_ops [regexp -lineanchor -indices -linestop "^set_global_assignment\\s+-name\\s+$value\\s*?$" $qsf ops]
+    if {$found_ops} {
+        return $qsf
+    } else {
+        set res [string cat $qsf "\n$replacement"]
+        return $res
+    }
+}
+
+proc prepare_qsf {} {
+    
+    set qsf_files [glob -nocomplain "*.qsf"]
+    if {[llength $qsf_files] != 1} {
+        puts2 "######################################################"
+        puts2 "Found [expr {([llength $qsf_files] == 0) ? "none" : "multiple"}] qsf files inside ([pwd]) directory"
+        puts2 "Unable to check/prepare qsf file"
+        puts2 "Prepare the quartus project manually."
+        puts2 "######################################################"
+        puts2 "Press enter to continue..."
+        gets stdin
+        return 0
+    }
+    puts2 "######### Preparing project settings file ############"
+    if { [catch {
+        puts2 "Reading settings file..."
+        set qsf_file [lindex $qsf_files 0]
+        set qsf_file_fd [open $qsf_file "r"]
+        set qsf_file_data [read $qsf_file_fd]
+        close $qsf_file_fd
+
+
+        set new_qsf [find_in_qsf_and_replace $qsf_file_data "EDA_TEST_BENCH_ENABLE_STATUS" "TEST_BENCH_MODE -section_id eda_simulation"]
+        set new_qsf [find_in_qsf_and_replace $new_qsf "EDA_NATIVELINK_SIMULATION_TEST_BENCH" "EMULATOR -section_id eda_simulation"]
+        
+        set new_qsf [find_in_qsf_and_replace $new_qsf "EDA_LAUNCH_CMD_LINE_TOOL" "ON -section_id eda_simulation"]
+        set new_qsf [find_in_qsf_and_replace $new_qsf "EDA_NATIVELINK_GENERATE_SCRIPT_ONLY" "ON -section_id eda_simulation"]
+
+        set new_qsf [find_in_qsf_or_add $new_qsf "EDA_TEST_BENCH_NAME EMULATOR -section_id eda_simulation"]
+        set new_qsf [find_in_qsf_or_add $new_qsf "EDA_DESIGN_INSTANCE_NAME NA -section_id EMULATOR"]
+        set new_qsf [find_in_qsf_or_add $new_qsf "EDA_TEST_BENCH_MODULE_NAME EMULATOR -section_id EMULATOR"]
+        set new_qsf [find_in_qsf_or_add $new_qsf "EDA_TEST_BENCH_FILE emulator/emulator.v -section_id EMULATOR"]
+
+        set changed [expr {$new_qsf != $qsf_file_data}]
+
+        if {$changed} {
+            puts2 "Creating backup file..."
+            set qsf_file_bak_fd [open "$qsf_file.emulator.bak" "w"]
+            puts -nonewline $qsf_file_bak_fd $qsf_file_data
+            close $qsf_file_bak_fd
+            puts2 "Overwriting settings file..."
+            set qsf_file_fd [open $qsf_file "w"]
+            puts -nonewline $qsf_file_fd $new_qsf
+            close $qsf_file_fd
+            puts2 "Success."
+            puts2 "######################################################"
+            puts2 "Prepared EMULATOR testbench configuration"
+            puts2 "Now run EDA Netlis Writter (if you haven't) and Gate-Level Simulation"
+            puts2 "######################################################"
+            puts2 "Press enter to continue..."
+            gets stdin
+        } else {
+            puts2 "Settings file is already prepared."
+        }
+
+    }] } {
+        puts2 "######################################################"
+        puts2 "Filesystem Error during qsf file preparing..."
+        puts2 "Make sure the project is correctly set up and/or prepare the quartus project manually."
+        puts2 "######################################################"
+        puts2 "Press enter to continue..."
+        gets stdin
+        return 0
+    }
+    return 1
+}
+
+
+##### SCRIPT START #####
+
 if {!$DO_SIMPLE && !$DO_SIMPLEF && !$DO_QUARTUS} {
     puts2 "###############################"
     puts2 "No emulation type specified (use -s, -S or -q)"
@@ -171,12 +267,29 @@ if {$DO_QUARTUS} {
     puts2 "###############################"
     puts2 "   Preparing Quartus Script"
     puts2 "###############################"
-    set do_files [glob -nocomplain "simulation/modelsim/*_gate_*.do"]
-    if {[llength $do_files] == 0} {
-        puts2 "Not found gate-level simulation script inside ([pwd]/simulation) directory"
-        puts2 "Be sure to correctly set up quartus simulation, by running Gate-Level Simulation for (corectly configured) testbench \"EMULATOR\""
-        puts2 "######### Preparing Script Failed - Aborting... ############"
-        exit
+    
+    if {!$NO_QSF} {
+        puts2 "###############################"
+        puts2 "  Preparing QSF Settings file"
+        puts2 "###############################"
+        prepare_qsf
+    }
+    puts2 "###############################"
+    puts2 "  Preparing Simulation Script"
+    puts2 "###############################"
+
+    while {1} {
+        set do_files [glob -nocomplain "simulation/modelsim/*_gate_*.do"]
+        if {[llength $do_files] == 0} {
+            puts2 "######################################################"
+            puts2 "Not found gate-level simulation script inside ([pwd]/simulation) directory"
+            puts2 "Be sure to correctly set up quartus simulation, by running Gate-Level Simulation for (corectly configured) testbench \"EMULATOR\""
+            puts2 "######################################################"
+            puts2 "Press enter to retry..."
+            gets stdin
+            continue
+        }
+        break
     }
     puts2 "######### Preparing .do simulation file ############"
     if { [catch {

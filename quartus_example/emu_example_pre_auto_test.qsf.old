@@ -138,14 +138,23 @@ set_global_assignment -name BDF_FILE mammamia.bdf
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+# PO BUILD
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
 set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH EMULATOR -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME tttest1_aha -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id tttest1_aha
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME tttest1 -section_id tttest1_aha
+set_global_assignment -name EDA_TEST_BENCH_NAME tttest2_non -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id tttest2_non
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME tttest2 -section_id tttest2_non
 set_global_assignment -name EDA_LAUNCH_CMD_LINE_TOOL ON -section_id eda_simulation
 set_global_assignment -name EDA_NATIVELINK_GENERATE_SCRIPT_ONLY ON -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME EMULATOR -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id EMULATOR
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME EMULATOR -section_id EMULATOR
-set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
-set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name EDA_TEST_BENCH_FILE emulator/emulator.v -section_id EMULATOR
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_FILE tttest1.v -section_id tttest1_aha
+set_global_assignment -name EDA_TEST_BENCH_FILE tttest2.v -section_id tttest2_non
+set_global_assignment -name EDA_TEST_BENCH_FILE emulator/emulator.v -section_id EMULATOR
